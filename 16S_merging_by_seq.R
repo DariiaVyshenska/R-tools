@@ -148,7 +148,7 @@ k_biom_tax <- merge(k_taxonomy,k_biom , by ="OTU_ID")
 
 ##########################
 
-#shortening biom_tax tables to contain 99% accumulative by frequency OTUs only
+#shortening biom_tax tables to contain cumul_cutoff % accumulative by frequency OTUs only
 
 # D table:removing singletons, normalize table; output full normalized table; selecting OTUs based on total (across samples) cumulative frequency cutoff, adding sequence and outputing this short table
 d_biom_n <- normaliz_16s(d_biom)
