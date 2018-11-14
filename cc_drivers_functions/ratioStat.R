@@ -6,6 +6,7 @@
 # this pval will be used in file names only.
 
 ratioStat <- function(matrixA, pval){
+  kd_tar_sum <- ncol(matrixA)
   min_vec <- vector(length = kd_tar_sum)
   max_vec <- vector(length = kd_tar_sum)
   maxBymin_vec <- vector(length = kd_tar_sum)
