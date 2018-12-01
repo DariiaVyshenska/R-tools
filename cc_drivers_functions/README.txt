@@ -12,3 +12,12 @@ degs_df.R
 # column and number of genes that pass this pvalue threshold for that gene
 # as a second column
 
+subtable_table.R
+# contains two functions: extract_table and subtable_table. Subtable_table uses extract_table
+# extract_table
+# Function: extracts rows based on key word (value variable) - use "Coefficient"
+#or "pvalue"
+# subtable_table
+# Function: filters table either based on p-value ("p_val") threshold or on 
+# corr coef directionality ("coef_dir"). If any NA's are detected - the row 
+# will be excluded
