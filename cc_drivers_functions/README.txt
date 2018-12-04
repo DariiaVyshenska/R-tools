@@ -13,11 +13,15 @@ degs_df.R
 # as a second column
 
 subtable_table.R
-# contains two functions: extract_table and subtable_table. Subtable_table uses extract_table
+# contains three functions: extract_table and subtable_table, fisher_calc. Subtable_table uses extract_table
 # extract_table
 # Function: extracts rows based on key word (value variable) - use "Coefficient"
-#or "pvalue"
+# or "pvalue"
 # subtable_table
 # Function: filters table either based on p-value ("p_val") threshold or on 
 # corr coef directionality ("coef_dir"). If any NA's are detected - the row 
-# will be excluded
+# will be excluded. uses function extract_table
+# fisher_calc
+# Function: calculates Fisher's combined probability test p-value and
+# attaches this p-value as extra column "fish_pval". Returns table with attached fisher column
+# uses function subtable_table
