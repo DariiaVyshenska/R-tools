@@ -7,9 +7,9 @@ extract_table <- function(input_table, value){
 }
 
 # Function: filters table either based on p-value ("p_val") threshold or on 
-# corr coef directionality ("coef_dir"; adds coefition direction column where 1
-# is positive, -1 is negative correlation). 
-# If any NA is detected - row is excluded
+# corr coef directionality; adds coefition direction column where 1
+# is positive, -1 is negative correlation ("coef_dir"); adds median of correlation
+# coefitient("corcoef_median").
 
 subtable_table <- function(test_table, test, p_val_threshold = NULL){  
   if(test == "coef_dir"){
@@ -27,10 +27,12 @@ subtable_table <- function(test_table, test, p_val_threshold = NULL){
       cat("No NA in correlations!\n")
       return_table <- test_table[subtable_vec, ]
       return_table$cor_direction <- sign(subtable[subtable_vec,1])
+      return_table$corcoef_median <- apply(subtable[subtable_vec,],1,function(x) median(x))
     } else if (sum(na_vec) > 0){
       cat("NAs were found in correlations!\n")
       return_table <- test_table[subtable_vec & !(na_vec), ]
       return_table$cor_direction <- sign(subtable[subtable_vec & !(na_vec),1])
+      return_table$corcoef_median <- apply(subtable[subtable_vec & !(na_vec),],1,function(x) median(x))
     }
   } else if(test == "p_val"){
     cat("This part of Script needs to be written!\n")

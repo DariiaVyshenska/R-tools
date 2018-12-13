@@ -19,8 +19,9 @@ subtable_table.R
 # or "pvalue"
 # subtable_table
 # Function: filters table either based on p-value ("p_val") threshold or on 
-# corr coef directionality ("coef_dir"; adds coefition direction column where 1
-# is positive, -1 is negative correlation). 
+# corr coef directionality; adds coefition direction column where 1
+# is positive, -1 is negative correlation ("coef_dir"); adds median of correlation
+# coefitient("corcoef_median"). 
 # If any NA is detected - row is excluded
 # fisher_calc
 # Function: calculates Fisher's combined probability test p-value and
