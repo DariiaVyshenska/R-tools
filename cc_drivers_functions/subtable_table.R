@@ -30,6 +30,7 @@ subtable_table <- function(test_table, test, p_val_threshold = NULL){
     } else if (sum(na_vec) > 0){
       cat("NAs were found in correlations!\n")
       return_table <- test_table[subtable_vec & !(na_vec), ]
+      return_table$cor_direction <- sign(subtable[subtable_vec & !(na_vec),1])
     }
   } else if(test == "p_val"){
     cat("This part of Script needs to be written!\n")
