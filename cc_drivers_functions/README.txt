@@ -28,3 +28,13 @@ subtable_table.R
 # attaches this p-value as extra column "fish_pval". If parameter "fdr" = T
 # than fdr for fisher will be calcualted and added as "fisher_fdr" column.
 # Returns table
+# merge_raw_corr
+# Function: imports and merges separate correlation analysis results files 
+# into one big table (plus exporting it as .csv file as a backup; a must for
+# large analysis files)
+# Input: a path to the folder with ONLY correlation analysis files (Richard's
+# script output; one file = one analysis) - example 
+# input_path = "D:/GitHub/R_wd/corr_raw_input/"
+# Output: single merged table with merged analysis, analysis headers renamed
+# according to the analysis # (from analysis 1 for all to analysis 1, 2, 3 ect.)
+# Function also exports the merged table as .csv (mandatory)

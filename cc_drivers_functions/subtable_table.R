@@ -57,3 +57,39 @@ fisher_calc <- function(test_table, fdr = F){
                                                 method = "fdr")}
   return(test_table)
 }
+
+
+# Function: imports and merges separate correlation analysis results files 
+# into one big table (plus exporting it as .csv file as a backup; a must for
+# large analysis files)
+# Input: a path to the folder with ONLY correlation analysis files (Richard's
+# script output; one file = one analysis) - example 
+# input_path = "D:/GitHub/R_wd/corr_raw_input/"
+# Output: single merged table with merged analysis, analysis headers renamed
+# according to the analysis # (from analysis 1 for all to analysis 1, 2, 3 ect.)
+# Function also exports the merged table as .csv (mandatory)
+merge_raw_corr <- function(input_path){
+  #getting the list of files in the specified folder
+  files <- list.files(input_path)
+  file_path <- paste(input_path, files[1], sep = "")
+  #creating the main table, importing the first file with analysis
+  merged <- read.table(file_path, header = T, check.names = F, sep = ",")
+  # looping through the rest of the files, importing them and merging with
+  # our main merging table
+  for(i in 2:length(files)){
+    file_path <- NA
+    file_path <- paste(input_path, files[i], sep = "")
+    tableToAdd <- read.table(file_path, header = T, check.names = F, sep = ",")
+    
+    analysis <- paste("Analys", i, sep = " ")
+    header <- names(tableToAdd)
+    newheader <- gsub("Analys 1", analysis, header)
+    names(tableToAdd) <- newheader
+    merged <- merge(merged, tableToAdd, by.x = "pairName", 
+                    by.y = "pairName")
+  }
+  # exporting intact but already merged analysis files as a single table
+  write.csv(merged, "merged_analysisTable.csv", row.names = F)
+  
+  return(merged)
+}
