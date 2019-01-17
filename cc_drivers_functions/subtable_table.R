@@ -73,13 +73,15 @@ merge_raw_corr <- function(input_path){
   files <- list.files(input_path)
   file_path <- paste(input_path, files[1], sep = "")
   #creating the main table, importing the first file with analysis
-  merged <- read.table(file_path, header = T, check.names = F, sep = ",")
+  merged <- read.table(file_path, header = T, check.names = F, sep = ",", 
+                       stringsAsFactors = F)
   # looping through the rest of the files, importing them and merging with
   # our main merging table
   for(i in 2:length(files)){
     file_path <- NA
     file_path <- paste(input_path, files[i], sep = "")
-    tableToAdd <- read.table(file_path, header = T, check.names = F, sep = ",")
+    tableToAdd <- read.table(file_path, header = T, check.names = F, sep = ",",
+                             stringsAsFactors = F)
     
     analysis <- paste("Analys", i, sep = " ")
     header <- names(tableToAdd)
