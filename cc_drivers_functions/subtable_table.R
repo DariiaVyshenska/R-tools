@@ -9,7 +9,9 @@ extract_table <- function(input_table, value){
 # Function: filters table either based on p-value ("p_val") threshold or on 
 # corr coef directionality; adds coefition direction column where 1
 # is positive, -1 is negative correlation ("coef_dir"); adds median of correlation
-# coefitient("corcoef_median").
+# coefitient("corcoef_median") - in the mode of "coef_dir" (encountering any NA leads
+# to row exclusion).
+# in the mode of "p_val" it only filters the table by individual pvalues
 
 subtable_table <- function(test_table, test, p_val_threshold = NULL){  
   if(test == "coef_dir"){
@@ -35,8 +37,10 @@ subtable_table <- function(test_table, test, p_val_threshold = NULL){
       return_table$corcoef_median <- apply(subtable[subtable_vec & !(na_vec),],1,function(x) median(x))
     }
   } else if(test == "p_val"){
-    cat("This part of Script needs to be written!\n")
-    # take min of all pvals and then apply threshold to the minimal
+    # selects only rows where maxium pvalue less or equal to pvalue threshold
+    min_pval_v <- apply(subtable, 1, max)
+    subtable_vec <- min_pval_v <= p_val_threshold
+    return_table <- test_table[subtable_vec, ]
   }
   return(return_table)
 }  

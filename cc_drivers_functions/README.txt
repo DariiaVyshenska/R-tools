@@ -14,6 +14,7 @@ degs_df.R
 
 subtable_table.R
 # contains three functions: extract_table and subtable_table, fisher_calc. Subtable_table uses extract_table
+#
 # extract_table
 # Function: extracts rows based on key word (value variable) - use "Coefficient"
 # or "pvalue"
@@ -21,13 +22,16 @@ subtable_table.R
 # Function: filters table either based on p-value ("p_val") threshold or on 
 # corr coef directionality; adds coefition direction column where 1
 # is positive, -1 is negative correlation ("coef_dir"); adds median of correlation
-# coefitient("corcoef_median"). 
-# If any NA is detected - row is excluded
+# coefitient("corcoef_median") - in the mode of "coef_dir" (encountering any NA leads
+# to row exclusion).
+# in the mode of "p_val" it only filters the table by individual pvalues
+#
 # fisher_calc
 # Function: calculates Fisher's combined probability test p-value and
 # attaches this p-value as extra column "fish_pval". If parameter "fdr" = T
 # than fdr for fisher will be calcualted and added as "fisher_fdr" column.
 # Returns table
+#
 # merge_raw_corr
 # Function: imports and merges separate correlation analysis results files 
 # into one big table (plus exporting it as .csv file as a backup; a must for
