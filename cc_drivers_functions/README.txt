@@ -42,3 +42,14 @@ subtable_table.R
 # Output: single merged table with merged analysis, analysis headers renamed
 # according to the analysis # (from analysis 1 for all to analysis 1, 2, 3 ect.)
 # Function also exports the merged table as .csv (mandatory)
+
+nw_calc_stats.R
+# calc_stats
+# Function: partially filters merged raw correlation table and calculates
+# key network statistics (no PUC is implemented yet!)
+# input: raw single merged correltation table (can and should contain several
+# cohorts for metaanalysis; MUST NOT contain groups that should be analysied 
+# separately)
+# output: .csv file with table with all the data, filtered by correlation 
+# directionality and individual p-values (for each cohort); .csv file with 
+# table with key network statistics (function also returns this function)
