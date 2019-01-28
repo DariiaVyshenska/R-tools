@@ -39,7 +39,7 @@ subtable_table <- function(test_table, test, p_val_threshold = NULL){
   } else if(test == "p_val"){
     # selects only rows where maxium pvalue less or equal to pvalue threshold
     min_pval_v <- apply(subtable, 1, max)
-    subtable_vec <- min_pval_v <= p_val_threshold
+    subtable_vec <- as.numeric(min_pval_v) <= p_val_threshold
     return_table <- test_table[subtable_vec, ]
   }
   return(return_table)
@@ -56,8 +56,8 @@ fisher_calc <- function(test_table, fdr = F){
   # replace any zeros
   subtable[subtable==0.0000000]<-0.00000001
   # calculate fisher
-  test_table$fish_pval <- apply(subtable, 1, function(x) if(any(is.na(x))){NA}else(sumlog(x)$p))
-  if (fdr == T){test_table$fish_fdr <- p.adjust(test_table$fish_pval, 
+  test_table$fish_pval <- apply(subtable, 1, function(x) if(any(is.na(x))){NA}else(sumlog(as.numeric(x))$p))
+  if (fdr == T){test_table$fish_fdr <- p.adjust(as.numeric(test_table$fish_pval), 
                                                 method = "fdr")}
   return(test_table)
 }

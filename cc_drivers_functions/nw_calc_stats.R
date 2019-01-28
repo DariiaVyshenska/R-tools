@@ -41,7 +41,9 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
   m_table_indpval <- subtable_table(m_table_cd, "p_val", 
                                     p_val_threshold = indivPval)
   m_table_cd_indpval_fish <- fisher_calc(m_table_indpval, fdr = T)
-  write.csv(m_table_cd_indpval_fish, "analysisTable_CorDirIPFishFDR.csv", 
+  
+  filt_table_name <- paste("analysisTable_CD_IP", indivPval, ".csv", sep = "")
+  write.csv(m_table_cd_indpval_fish, filt_table_name, 
             row.names = F)
   
   col_num <- ncol(m_table_cd)
@@ -56,7 +58,7 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
   # calculate number of nodes and edges that pass correlation directionality
   # filter
   cd_nodes <- unique_nodes(m_table_cd)
-  cd_edges <- nrow(m_table_cd[m_table_cd$cor_direction != 0,])
+  cd_edges <- nrow(m_table_cd[as.numeric(m_table_cd$cor_direction) != 0,])
   
   # calculate number of nodes and edges that pass correlation directionality 
   # filter + pass individual pvalue filter
@@ -65,34 +67,34 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
   
   # calculate number of nodes and edges that pass correlation directionality 
   # filter + pass individual pvalue filter + fisher p-value filter
-  m_table_cd_indpval_F <- m_table_cd_indpval_fish[m_table_cd_indpval_fish$fish_pval <= fishPval,]
+  m_table_cd_indpval_F <- m_table_cd_indpval_fish[as.numeric(m_table_cd_indpval_fish$fish_pval) <= fishPval,]
   cd_ip_f_nodes <- unique_nodes(m_table_cd_indpval_F)
-  cd_ip_f_edges <- nrow(m_table_cd_indpval_F[m_table_cd_indpval_F$cor_direction != 0,])
+  cd_ip_f_edges <- nrow(m_table_cd_indpval_F[as.numeric(m_table_cd_indpval_F$cor_direction) != 0,])
   
   # calculate number of nodes and edges that pass correlation directionality 
   # filter + pass individual pvalue filter + fisher p-value filter + 
   # fisher FDR filter
-  m_table_cd_indpval_F_FDR <- m_table_cd_indpval_F[m_table_cd_indpval_F$fish_fdr <= fdr_threshold,]
+  m_table_cd_indpval_F_FDR <- m_table_cd_indpval_F[as.numeric(m_table_cd_indpval_F$fish_fdr) <= fdr_threshold,]
   cd_ip_f_fdr_nodes <- unique_nodes(m_table_cd_indpval_F_FDR)
-  cd_ip_f_fdr_edges <- nrow(m_table_cd_indpval_F_FDR[m_table_cd_indpval_F_FDR$cor_direction != 0,])
+  cd_ip_f_fdr_edges <- nrow(m_table_cd_indpval_F_FDR[as.numeric(m_table_cd_indpval_F_FDR$cor_direction) != 0,])
   
   # ratio of filtered edges to filtered nodes
-  ratio_edgTonod <- cd_ip_f_fdr_edges/cd_ip_f_fdr_nodes
+  ratio_edgTonod <- as.numeric(cd_ip_f_fdr_edges)/as.numeric(cd_ip_f_fdr_nodes)
   
   # for correlated pairs that pass:
   # cor dir, individ pval, fisher, fisher fdr filters we calculate:
   # number of positive correlations
   corr_vec <- m_table_cd_indpval_F_FDR$corcoef_median
   
-  pos_cor <- sum(sign(corr_vec) == 1)
+  pos_cor <- sum(sign(as.numeric(corr_vec)) == 1)
   # number of negative correlations
-  neg_cor <- sum(sign(corr_vec) == -1)
+  neg_cor <- sum(sign(as.numeric(corr_vec)) == -1)
   # ratio of number of positive over number of negative correlations
-  ratio_posToneg <- pos_cor/neg_cor
+  ratio_posToneg <- as.numeric(pos_cor)/as.numeric(neg_cor)
   # maximum absolute median positive correlation
-  max_pos <- abs(max(corr_vec[sign(corr_vec) == 1]))
+  max_pos <- abs(max(corr_vec[sign(as.numeric(corr_vec)) == 1]))
   # maximum absolute median negative correlation
-  max_neg <- abs(min(corr_vec[sign(corr_vec) == -1]))
+  max_neg <- abs(min(corr_vec[sign(as.numeric(corr_vec)) == -1]))
   
   
   ######
