@@ -95,13 +95,17 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
   max_pos <- abs(max(corr_vec[sign(as.numeric(corr_vec)) == 1]))
   # maximum absolute median negative correlation
   max_neg <- abs(min(corr_vec[sign(as.numeric(corr_vec)) == -1]))
-  
+  # minimum absolute median positive correlation
+  min_pos <- abs(min(corr_vec[sign(as.numeric(corr_vec)) == 1]))
+  # minimum absolute median negative correlation
+  min_neg <- abs(max(corr_vec[sign(as.numeric(corr_vec)) == -1]))
   
   ######
   # Creating table with all statistics & exporting it into a file
   feat_val <- c(starting_nodes, theor_edges, cd_nodes, cd_edges, cd_ip_nodes, cd_ip_edges, 
                 cd_ip_f_nodes, cd_ip_f_edges, cd_ip_f_fdr_nodes, cd_ip_f_fdr_edges, 
-                ratio_edgTonod, pos_cor, neg_cor, ratio_posToneg, max_pos, max_neg)
+                ratio_edgTonod, pos_cor, neg_cor, ratio_posToneg, max_pos, max_neg, 
+                min_pos, min_neg)
   features <- c("# of starting nodes", "# of theoretical edges",  "# of cor dir nodes",
                 "# of cor dir edges",  "# of cor dir, ip nodes",  "# of cor dir, ip edges",
                 "# of cor dir, ip, fish nodes",  "# of cor dir, ip, fish edges",
@@ -109,13 +113,15 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
                 "# of cor dir, ip, fish,fish_fdr edges",  "ratio of # edges to # nodes",
                 "# of positive correlations",  "# of negative correlations",
                 "ratio of positive to negative corr",  "max absolute positive corr",
-                "max absolute negative corr"
-  )
+                "max absolute negative corr", "min absolute positive corr", 
+                "min absolute negative corr")
   
   stat_table <- data.frame(FEATURES = features, FEATURE_VALUE = feat_val)
   
   stat_fileName <- paste("StatNW_CD_ip", indivPval, "_fishPval", fishPval, "_FDR",
                          fdr_threshold, ".csv", sep = "")
   write.csv(stat_table, stat_fileName, row.names = F)
+  
+  
   return(stat_table)
 }
