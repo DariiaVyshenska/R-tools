@@ -1,3 +1,23 @@
+kd_data_manip_functions
+#contains several functions for KD project
+#
+#import_df_asList
+# FUNCTION: importing data
+# function takes a path to a folder that contains tab delimited files
+# files are imported as data.frames and all of them put into a list 
+# each table in the list has a name of the file name from wich it was imported
+#
+#degs_df.R
+# This function takes list of tables with info about DEGs and pvalue
+# threshold, it spits out dataframe with the name of the KD-target in first 
+# column and number of genes that pass this pvalue threshold for that gene
+# as a second column
+#
+#degs_union_vec
+# FUNCTION: takes list of tables with unfiltered degs, outputs a vector
+# of union of all degs for all KDs under certain pvalue threshold
+# also exports degs for this pval for each kd file and union as a file
+
 ratioStat.R
 # this funciton takes matrix of ratios and creates two tables:
 # table with all combination for each KD target and ratios for these combinations
@@ -6,11 +26,7 @@ ratioStat.R
 # you also need to provid pval under which the ratios matrix was created
 # this pval will be used in file names only.
 
-degs_df.R
-# This function takes list of tables with info about DEGs and pvalue
-# threshold, it spits out dataframe with the name of the KD-target in first 
-# column and number of genes that pass this pvalue threshold for that gene
-# as a second column
+
 
 subtable_table.R
 # contains three functions: extract_table and subtable_table, fisher_calc. Subtable_table uses extract_table
