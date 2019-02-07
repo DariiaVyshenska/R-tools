@@ -57,3 +57,30 @@ degs_union_vec <- function(tables, pval){
   return(uni_id)
 }
 
+# FUNCTION: takes list of tables with unfiltered degs, outputs a data frame
+# with DEGs' fold changes (gene considered to be DEg under specified pvalue 
+# threshold, otherwise it will be NA in a table) for each KD 
+fc_table_extr <- function(tables, pval){
+  sel_vec <- as.numeric(tables[[1]][["Parametric p-value"]]) <= pval
+  gene_ids <- tables[[1]][["UniqueID"]][sel_vec]
+  gene_fc <- tables[[1]][["KD/C-all"]][sel_vec]
+  fc_df <- data.frame(UniqueID = gene_ids, gene_name = gene_fc, 
+                      stringsAsFactors = F)
+  names(fc_df) <- c("UniqueID", names(tables[1])) 
+  
+  for(i in 2:length(tables)){
+    sel_vec <- as.numeric(tables[[i]][["Parametric p-value"]]) <= pval
+    print(sum(sel_vec))
+    gene_ids <- tables[[i]][["UniqueID"]][sel_vec]
+    gene_fc <- tables[[i]][["KD/C-all"]][sel_vec]
+    fc_df_temp <- data.frame(UniqueID = gene_ids, gene_name = gene_fc, 
+                             stringsAsFactors = F)
+    names(fc_df_temp) <- c("UniqueID", names(tables[i]))
+    fc_df <- merge(fc_df, fc_df_temp, all = T)
+  }
+  
+  file_name <- paste("KD_FC_pval", pval, ".csv", sep = "")
+  write.csv(fc_df, file_name, row.names = F)
+  return(fc_df)
+}
+

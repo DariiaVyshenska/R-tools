@@ -17,6 +17,11 @@ kd_data_manip_functions
 # FUNCTION: takes list of tables with unfiltered degs, outputs a vector
 # of union of all degs for all KDs under certain pvalue threshold
 # also exports degs for this pval for each kd file and union as a file
+#
+#fc_table_extr
+# FUNCTION: takes list of tables with unfiltered degs, outputs a data frame
+# with DEGs' fold changes (gene considered to be DEg under specified pvalue 
+# threshold, otherwise it will be NA in a table) for each KD 
 
 ratioStat.R
 # this funciton takes matrix of ratios and creates two tables:
