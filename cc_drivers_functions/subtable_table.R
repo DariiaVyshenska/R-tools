@@ -99,3 +99,57 @@ merge_raw_corr <- function(input_path){
   
   return(merged)
 }
+
+# FUNCTION: calculates PUC
+# input: two tables 
+# a) fc_pucInput is a data frame, first column is a unique id,
+# second column is fold change sign (1 if gene is up, -1 if gene is down). this
+# table should not contain any other sumbols, otherwise you will need to change
+# the funciton; 
+# b) edge_pucInput is a data frame, first column must contain the pairName, 
+# second - correlation direction (1 or -1 only!)
+# output: vector of puc (1 if pass, 0 if no pass, NA if one or both of nodes in 
+# the edge did not have corresponding fold change value in table #1), the order
+# is respectful to edges in initial table. can be used dicectly to append as
+# a column to initial data frame with edges
+puc <- function(fc_pucInput, edge_pucInput){
+  #preparing edges
+  genes_L <- strsplit(edge_pucInput[,1], split = "<==>", fixed = T)
+  edge_pucInput$n1 <- unlist(lapply(genes_L, `[[`, 1))
+  edge_pucInput$n2 <- unlist(lapply(genes_L, `[[`, 2))
+  edges <- edge_pucInput[,-1]
+  
+  #prep hash table for fold change references
+  fcenv<-new.env()
+  for(i in seq(nrow(fc_pucInput))){
+    fcenv[[ fc_pucInput[i,1] ]]<- fc_pucInput[i,2]
+  }
+  
+  # getting vector with PUC: 1 if pass, 0 if no pass, NA if one of the nodes
+  # is not represented by fold change
+  puc_vector <- vector()
+  for(i in 1:nrow(edges)){
+    fc_n1 <- fcenv[[as.character(edges$n1[i])]]
+    fc_n2 <- fcenv[[as.character(edges$n2[i])]]
+    cd <- edges$cor_direction[i]
+    
+    if(!is.null(fc_n1) & !is.null(fc_n2)){  
+      if(fc_n1 == fc_n2 & cd == 1 | fc_n1 != fc_n2 & cd == -1){
+        puc_vector[i] <- 1
+      } else if(fc_n1 == fc_n2 & cd == -1 | fc_n1 != fc_n2 & cd == 1){
+        puc_vector[i] <- 0
+      } else {
+        print("Something is whrong with PUC calc loop #2")
+        cat("fcn1: ", fc_n1, "\n")
+        cat("fcn2: ", fc_n2, "\n")
+        cat("cd: ", cd, "\n")}
+    } else if(is.null(fc_n1) | is.null(fc_n2)){
+      puc_vector[i] <- NA
+    } else {
+      print("Something is whrong with PUC calc loop #1")
+      cat("fcn1: ", fc_n1, "\n")
+      cat("fcn2: ", fc_n2, "\n")
+      cat("cd: ", cd, "\n")}
+  }
+  return(puc_vector)
+}

@@ -63,6 +63,20 @@ subtable_table.R
 # Output: single merged table with merged analysis, analysis headers renamed
 # according to the analysis # (from analysis 1 for all to analysis 1, 2, 3 ect.)
 # Function also exports the merged table as .csv (mandatory)
+#
+#puc
+# FUNCTION: calculates PUC
+# input: two tables 
+# a) fc_pucInput is a data frame, first column is a unique id,
+# second column is fold change sign (1 if gene is up, -1 if gene is down). this
+# table should not contain any other sumbols, otherwise you will need to change
+# the funciton; 
+# b) edge_pucInput is a data frame, first column must contain the pairName, 
+# second - correlation direction (1 or -1 only!)
+# output: vector of puc (1 if pass, 0 if no pass, NA if one or both of nodes in 
+# the edge did not have corresponding fold change value in table #1), the order
+# is respectful to edges in initial table. can be used dicectly to append as
+# a column to initial data frame with edges
 
 nw_calc_stats.R
 # calc_stats
