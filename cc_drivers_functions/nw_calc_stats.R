@@ -1,3 +1,6 @@
+require(combinat)
+source("D:/GitHub/R_scripts/cc_drivers_functions/subtable_table.R")
+
 # Function: partially filters merged raw correlation table and calculates
 # key network statistics (no PUC is implemented yet!)
 # input: raw single merged correltation table (can and should contain several
@@ -10,8 +13,6 @@
 
 calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05, 
                        fdr_threshold = 0.1){
-  require(combinat)
-  source("D:/GitHub/R_scripts/cc_drivers_functions/subtable_table.R")
   ##############################################################################
   # SUPPLEMENTARY SMALL FUNCITONS
   # function that gives a matrix of all possible combinations without repetition
@@ -124,4 +125,125 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
   
   
   return(stat_table)
+}
+
+# Function: filters correlation directionality filtered and fisher+fdr 
+# calculated table based on individual p-value, fisher, and fisher fdr threshold
+# plus gives the statistics on edges according to PUC pass/no pass/not applicable
+# and on nodes - ups and downs, fold change consistency regulation across drivers
+#
+# input: individual p-value(ip), fisher combined p-value(fp), fisher fdr (f_fdr),
+# and table of the network that contains columns:
+# pairName - gene pair name
+# n1 - gene 1 name from the gene pair
+# n2 - gene 2 name from the gene pair
+# set of columns for each cohort that must be included in metaanalysis (from 
+# Richard's script output)
+# cor_direction - corelation direction for the gene pair (1/-1)
+# fish_pval - for the pair(edge)
+# fish_fdr - for the pair(edge)
+# PUC - for the pair(edge), can be 1/0/NA
+# n1_fc_consist and n2_fc_consist - fold change consistency for gene 1 and 
+# gene 2 respectfully, can be 1 (positive cor), -1 (negative cor), 0 (inconsis-
+# tent across drivers)
+# n1_regulating_drivers and n2_regulating_drivers - number of drivers by which
+# gene 1 or gene 2 respectfully regulated (any number >= 1)
+#
+# output: 
+# file with full but filtered with ip, fp, f_fdr table;
+# file with staistics about the filtered network
+# returns: statistics data frame
+
+puc_stat <- function(n_edge_table, ip, fp, f_fdr){
+  
+  # first: filtering the table by IP, fisher and fdr; table is prefiltered by 
+  # correlation directionality
+  table_ip <- subtable_table(n_edge_table, "p_val", p_val_threshold = ip)
+  table_ip_f_fdr <- table_ip[as.numeric(table_ip$fish_pval) <= fp & +
+                               as.numeric(table_ip$fish_fdr) <= f_fdr,]
+  
+  # exporting filtered out table
+  filt_name <- paste("CD_IP", ip, "_FP", fp, "_FFDR", f_fdr, sep = "")
+  full_tableName <- paste("analysisTable_", filt_name, ".csv", sep = "")
+  write.csv(table_ip_f_fdr, full_tableName, row.names = F)
+  
+  # creating data frame with information about unique nodes in the network
+  # we'll use it below for getting statistics numbers for nodes
+  nodes_vec <- c(table_ip_f_fdr$n1, table_ip_f_fdr$n2)
+  consis_vec <- c(table_ip_f_fdr$n1_fc_consist, table_ip_f_fdr$n2_fc_consist)
+  driv_vec <- c(table_ip_f_fdr$n1_regulating_drivers, 
+                table_ip_f_fdr$n2_regulating_drivers)
+  
+  n_df <- unique(data.frame(n = nodes_vec, consistency = consis_vec, 
+                            drivers = driv_vec))
+  
+  # calculating numbers for all nodes
+  all_up <- sum(as.numeric(n_df$consistency) == 1)
+  all_down <- sum(as.numeric(n_df$consistency) == -1)
+  all_con <- sum(all_up, all_down)
+  all_incon <- sum(as.numeric(n_df$consistency) == 0)
+  
+  # calculating numbers for nodes regulated only by one driver
+  one_up <- sum(as.numeric(n_df$consistency) == 1 & +
+                  as.numeric(n_df$drivers) == 1)
+  one_down <- sum(as.numeric(n_df$consistency) == -1 & +
+                    as.numeric(n_df$drivers) == 1)
+  one_con <- sum(one_up, one_down)
+  one_incon <- sum(as.numeric(n_df$consistency) == 0 & +
+                     as.numeric(n_df$drivers) == 1)
+  
+  # calculating numbers for nodes regulated only by multiple driver
+  mult_up <- sum(as.numeric(n_df$consistency) == 1 & +
+                   as.numeric(n_df$drivers) > 1)
+  mult_down <- sum(as.numeric(n_df$consistency) == -1 & +
+                     as.numeric(n_df$drivers) > 1)
+  mult_con <- sum(mult_up, mult_down)
+  mult_incon <- sum(as.numeric(n_df$consistency) == 0 & +
+                      as.numeric(n_df$drivers) > 1)
+  
+  # calculating PUC related numbers for edges
+  puc_pass <- sum(table_ip_f_fdr$PUC == 1, na.rm = T)
+  puc_nopass <- sum(table_ip_f_fdr$PUC == 0, na.rm = T)
+  puc_null <- sum(is.na(table_ip_f_fdr$PUC))
+  puc_ratio <- puc_pass / puc_nopass
+  
+  # assambling statistics data into a data frame and exporting it as .csv file
+  reg_by <- c(rep("any", 4), 
+              rep(1, 4), 
+              rep(">1", 4), 
+              rep("edges", 4))
+  nodes_stat <- c(rep(c("up", "down", "consistent", "inconsistent"), 3), 
+                  "puc_passed", 
+                  "puc_not_passed", 
+                  "puc_not_applicable", 
+                  "puc_PassToNopass_ratio"
+  )
+  nodes_numbers <- c(
+    all_up,
+    all_down,
+    all_con,
+    all_incon,
+    one_up,
+    one_down,
+    one_con,
+    one_incon,
+    mult_up,
+    mult_down,
+    mult_con,
+    mult_incon,
+    puc_pass,
+    puc_nopass,
+    puc_null,
+    puc_ratio
+  )
+  
+  header <- c("NumberOfRegulatingDrivers", "NodeOrEdgeType", filt_name)
+  stat_df <- data.frame(one = reg_by, 
+                        two = nodes_stat,
+                        three = nodes_numbers
+  )
+  colnames(stat_df) <- header
+  stat_fileName <- paste("statTable_", filt_name, ".csv", sep = "")
+  write.csv(stat_df, stat_fileName, row.names = F)
+  return(stat_df)
 }

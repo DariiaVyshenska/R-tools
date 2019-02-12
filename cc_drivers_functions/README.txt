@@ -88,3 +88,31 @@ nw_calc_stats.R
 # output: .csv file with table with all the data, filtered by correlation 
 # directionality and individual p-values (for each cohort); .csv file with 
 # table with key network statistics (function also returns this function)
+#
+# puc_stat
+# Function: filters correlation directionality filtered and fisher+fdr 
+# calculated table based on individual p-value, fisher, and fisher fdr threshold
+# plus gives the statistics on edges according to PUC pass/no pass/not applicable
+# and on nodes - ups and downs, fold change consistency regulation across drivers
+#
+# input: individual p-value(ip), fisher combined p-value(fp), fisher fdr (f_fdr),
+# and table of the network that contains columns:
+# pairName - gene pair name
+# n1 - gene 1 name from the gene pair
+# n2 - gene 2 name from the gene pair
+# set of columns for each cohort that must be included in metaanalysis (from 
+# Richard's script output)
+# cor_direction - corelation direction for the gene pair (1/-1)
+# fish_pval - for the pair(edge)
+# fish_fdr - for the pair(edge)
+# PUC - for the pair(edge), can be 1/0/NA
+# n1_fc_consist and n2_fc_consist - fold change consistency for gene 1 and 
+# gene 2 respectfully, can be 1 (positive cor), -1 (negative cor), 0 (inconsis-
+# tent across drivers)
+# n1_regulating_drivers and n2_regulating_drivers - number of drivers by which
+# gene 1 or gene 2 respectfully regulated (any number >= 1)
+#
+# output: 
+# file with full but filtered with ip, fp, f_fdr table;
+# file with staistics about the filtered network
+# returns: statistics data frame
