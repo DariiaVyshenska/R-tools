@@ -6,24 +6,24 @@ extract_table <- function(input_table, value){
   return(new_table)
 }
 
-# Function: filters table either based on p-value ("p_val") threshold or on 
+# Function: filters table either based on p-value ("p") threshold or on 
 # corr coef directionality; adds coefition direction column where 1
-# is positive, -1 is negative correlation ("coef_dir"); adds median of correlation
+# is positive, -1 is negative correlation ("c"); adds median of correlation
 # coefitient("corcoef_median") - in the mode of "coef_dir" (encountering any NA leads
 # to row exclusion).
 # in the mode of "p_val" it only filters the table by individual pvalues
 
 subtable_table <- function(test_table, test, p_val_threshold = NULL){  
-  if(test == "coef_dir"){
+  if(test == "c"){
     test_value <- "Coefficient"
-  } else if (test == "p_val"){
+  } else if (test == "p"){
     test_value <- "pvalue"
   }
   subtable <- extract_table(test_table, test_value)
   # checking for NA's among the data to exclude these rows in the future
   na_vec <- apply(subtable, 1, function(x) any(is.na(x)))
 
-  if(test == "coef_dir"){
+  if(test_value == "Coefficient"){
     subtable_vec <- apply(subtable, 1, function(x) length(unique(sign(x))) == 1)
     if (sum(na_vec) == 0){
       cat("No NA in correlations!\n")
@@ -36,7 +36,7 @@ subtable_table <- function(test_table, test, p_val_threshold = NULL){
       return_table$cor_direction <- sign(subtable[subtable_vec & !(na_vec),1])
       return_table$corcoef_median <- apply(subtable[subtable_vec & !(na_vec),],1,function(x) median(x))
     }
-  } else if(test == "p_val"){
+  } else if(test_value == "pvalue"){
     # selects only rows where maxium pvalue less or equal to pvalue threshold
     min_pval_v <- apply(subtable, 1, max)
     subtable_vec <- as.numeric(min_pval_v) <= p_val_threshold
@@ -152,4 +152,16 @@ puc <- function(fc_pucInput, edge_pucInput){
       cat("cd: ", cd, "\n")}
   }
   return(puc_vector)
+}
+
+# FUNCTION: splits edge name into two columns with each node names
+# input: edge table with edge name column "pairName"
+# output: same table with extra two columns: "n1" with node one name, "n2" -
+# node two name
+split_edge_names <- function(table){
+  genes_L <- strsplit(table[,which(names(test_table) == "pairName")], 
+                      split = "<==>", fixed = T)
+  table$n2 <- unlist(lapply(genes_L, `[[`, 2))
+  table$n1 <- unlist(lapply(genes_L, `[[`, 1))
+  return(table)
 }
