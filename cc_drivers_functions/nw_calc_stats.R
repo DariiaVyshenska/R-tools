@@ -15,22 +15,6 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
                        fdr_threshold = 0.1){
   ##############################################################################
   # SUPPLEMENTARY SMALL FUNCITONS
-  # function that gives a matrix of all possible combinations without repetition
-  expand.grid.unique <- function(x, y, include.equals=FALSE)
-  {
-    x <- unique(x)
-    
-    y <- unique(y)
-    
-    g <- function(i)
-    {
-      z <- setdiff(y, x[seq_len(i-include.equals)])
-      
-      if(length(z)) cbind(x[i], z, deparse.level=0)
-    }
-    
-    do.call(rbind, lapply(seq_along(x), g))
-  }
   #
   unique_nodes <- function(intable){
     genes_L <- strsplit(intable[,1], split = "<==>", fixed = T)
@@ -53,9 +37,8 @@ calc_stats <- function(merged_table, indivPval = 0.3, fishPval = 0.05,
   # calculate initial number of nodes we started with
   starting_nodes <- unique_nodes(merged_table)
   
-  # calculate number of theoretical edges
-  theor_edges <- nrow(expand.grid.unique(c(1:starting_nodes),c(1:starting_nodes), 
-                                         include.equals = F))
+  # calculate number of theoretical edges (combination of 2 without repetition)
+  theor_edges <- (starting_nodes * (starting_nodes - 1))/2
   # calculate number of nodes and edges that pass correlation directionality
   # filter
   cd_nodes <- unique_nodes(m_table_cd)
@@ -158,7 +141,7 @@ puc_stat <- function(n_edge_table, ip, fp, f_fdr){
   
   # first: filtering the table by IP, fisher and fdr; table is prefiltered by 
   # correlation directionality
-  table_ip <- subtable_table(n_edge_table, "p_val", p_val_threshold = ip)
+  table_ip <- subtable_table(n_edge_table, "p", p_val_threshold = ip)
   table_ip_f_fdr <- table_ip[as.numeric(table_ip$fish_pval) <= fp & +
                                as.numeric(table_ip$fish_fdr) <= f_fdr,]
   
@@ -182,6 +165,11 @@ puc_stat <- function(n_edge_table, ip, fp, f_fdr){
   all_down <- sum(as.numeric(n_df$consistency) == -1)
   all_con <- sum(all_up, all_down)
   all_incon <- sum(as.numeric(n_df$consistency) == 0)
+  
+  # calculating theoretical positive and negative edges, as well as their ratio
+  t_pos <- (all_up * (all_up - 1))/2 + (all_down * (all_down - 1 ))/2
+  t_neg <- all_up * all_down
+  t_ratio <- t_pos/t_neg
   
   # calculating numbers for nodes regulated only by one driver
   one_up <- sum(as.numeric(n_df$consistency) == 1 & +
@@ -208,21 +196,25 @@ puc_stat <- function(n_edge_table, ip, fp, f_fdr){
   puc_ratio <- puc_pass / puc_nopass
   
   # assambling statistics data into a data frame and exporting it as .csv file
-  reg_by <- c(rep("any", 4), 
+  reg_by <- c(rep("any", 7), 
               rep(1, 4), 
               rep(">1", 4), 
               rep("edges", 4))
-  nodes_stat <- c(rep(c("up", "down", "consistent", "inconsistent"), 3), 
+  nodes_stat <- c(c("up", "down", "consistent", "inconsistent", "theor_pos_edges",
+                    "theor_neg_edges", "ratio theor_pos/theor_neg edges"), 
+                  rep(c("up", "down", "consistent", "inconsistent"), 2), 
                   "puc_passed", 
                   "puc_not_passed", 
                   "puc_not_applicable", 
-                  "puc_PassToNopass_ratio"
-  )
+                  "puc_PassToNopass_ratio")
   nodes_numbers <- c(
     all_up,
     all_down,
     all_con,
     all_incon,
+    t_pos,
+    t_neg,
+    t_ratio,
     one_up,
     one_down,
     one_con,

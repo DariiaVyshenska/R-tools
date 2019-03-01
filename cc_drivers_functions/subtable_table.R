@@ -159,7 +159,7 @@ puc <- function(fc_pucInput, edge_pucInput){
 # output: same table with extra two columns: "n1" with node one name, "n2" -
 # node two name
 split_edge_names <- function(table){
-  genes_L <- strsplit(table[,which(names(test_table) == "pairName")], 
+  genes_L <- strsplit(table[,grep("pairName", colnames(table))], 
                       split = "<==>", fixed = T)
   table$n2 <- unlist(lapply(genes_L, `[[`, 2))
   table$n1 <- unlist(lapply(genes_L, `[[`, 1))
